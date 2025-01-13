@@ -1,5 +1,7 @@
 <template>
   <view>
+    <!-- 使用自定义的搜索组件 -->
+    <my-search @click="gotoSearch"></my-search>
     <view class="scroll-view-container">
       <!-- 左侧的滚动视图区域 -->
       <scroll-view class="left-scroll-view" scroll-y :style="{height: wh + 'px'}" >
@@ -10,7 +12,7 @@
       <!-- 右侧的滚动视图区域 -->
       <scroll-view class="right-scroll-view" :scroll-top="scrollTop" scroll-y :style="{height: wh + 'px'}" >
         <view class="cate-lv2" v-for="(item2, i2) in cateLevel2" :key="i2">
-            <view class="cate-lv2-title">{{ item2.cat_name }}</view>
+            <view class="cate-lv2-title">/ {{ item2.cat_name }} /</view>
             <!-- 动态渲染三级分类的列表数据 -->
             <view class="cate-lv3-list">
               <!-- 三级分类 Item 项 -->
@@ -45,9 +47,11 @@
     },
     onLoad() {
       // 获取当前系统的信息
-      const sysInfo = uni.getSystemInfoSync()
+      // const sysInfo = uni.getSystemInfoSync()  // 该 API 已弃用
+      const sysInfo = uni.getWindowInfo()
       // 为 wh 窗口可用高度动态赋值
-      this.wh = sysInfo.windowHeight
+      // 可用高度 = 屏幕高度 - navigationBar 高度 - tabBar 高度 - 自定义的 search 组件高度
+      this.wh = sysInfo.windowHeight - 50
       
       // 调用获取分类列表数据的方法
       this.getCateList()
@@ -70,12 +74,20 @@
         this.cateLevel2 = this.cateList[i].children
         
         // 让 scrollTop 的值在 0 与 1 之间切换
-        this.srcollTop = this.scrollTop ? 0 : 1
+        // this.scrollTop = this.scrollTop === 0 ? 1 : 0
+        // 简化为
+        this.scrollTop = this.scrollTop ? 0 : 1
       }, 
       // 点击三级分类项跳转商品列表页面
       gotoGoodsList(item3) {
         uni.navigateTo({
           url:'/subpkg/goods_list/goods_list?cid=' +  item3.cat_id
+        })
+      },
+      // 跳转到分包中的搜索页面
+      gotoSearch() {
+        uni.navigateTo({
+          url: '/subpkg/search/search'
         })
       }
     },
@@ -133,6 +145,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         
         image {
           width: 60px;
